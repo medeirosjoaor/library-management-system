@@ -2,6 +2,9 @@ import { Pool } from "pg";
 import "dotenv/config";
 
 (async () => {
+  const schema =
+    process.env.NODE_ENV === "production" ? "production" : "development";
+
   const pool = new Pool({ allowExitOnIdle: true });
 
   const poolClient = await pool.connect();
@@ -10,7 +13,11 @@ import "dotenv/config";
     await poolClient.query("BEGIN");
 
     await poolClient.query(`
-    DROP TABLE IF EXISTS users, addresses, books, authors, purchases CASCADE;
+    DROP SCHEMA IF EXISTS ${schema};
+
+    CREATE SCHEMA ${schema};
+
+    SET search_path = ${schema};
 
     CREATE TABLE users (
         id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
