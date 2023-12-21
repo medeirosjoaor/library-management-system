@@ -13,7 +13,7 @@ import "dotenv/config";
     await poolClient.query("BEGIN");
 
     await poolClient.query(`
-    DROP SCHEMA IF EXISTS ${schema};
+    DROP SCHEMA IF EXISTS ${schema} CASCADE;
 
     CREATE SCHEMA ${schema};
 
