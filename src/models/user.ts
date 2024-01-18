@@ -5,6 +5,44 @@ import { RegisterUser, ReturnUser } from "../types/user";
 const schema =
   process.env.NODE_ENV === "production" ? "production" : "development";
 
+async function findByEmail(email: string): Promise<ReturnUser | undefined> {
+  const poolClient = await connect();
+
+  try {
+    await poolClient.query("BEGIN");
+
+    const { rows } = await poolClient.query<ReturnUser>(
+      `
+      SELECT
+          id,
+          first_name,
+          last_name,
+          email,
+          password
+      FROM
+          ${schema}.users
+      WHERE
+          email = $1;
+      `,
+      [email]
+    );
+
+    await poolClient.query("COMMIT");
+
+    return rows.at(0);
+  } catch (error) {
+    await poolClient.query("ROLLBACK");
+
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+  } finally {
+    poolClient.release();
+  }
+
+  return undefined;
+}
+
 async function register(user: RegisterUser): Promise<ReturnUser | undefined> {
   const poolClient = await connect();
 
@@ -46,4 +84,4 @@ async function register(user: RegisterUser): Promise<ReturnUser | undefined> {
   return undefined;
 }
 
-export default { register };
+export default { findByEmail, register };
