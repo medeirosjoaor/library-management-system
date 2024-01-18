@@ -37,8 +37,15 @@ import "dotenv/config";
         state text NOT NULL
     );
 
+    CREATE TABLE authors (
+        id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+        first_name text NOT NULL,
+        last_name text NOT NULL
+    );
+
     CREATE TABLE books (
         id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+        author_id uuid references authors (id) ON DELETE CASCADE,
         title text NOT NULL,
         genre text NOT NULL,
         isbn varchar(17) UNIQUE NOT NULL,
@@ -46,18 +53,14 @@ import "dotenv/config";
         stock_quantity integer NOT NULL
     );
 
-    CREATE TABLE authors (
-        id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-        first_name text NOT NULL,
-        last_name text NOT NULL
-    );
-
     CREATE TABLE purchases (
-        id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-        user_id uuid references users (id) ON DELETE SET NULL,
-        books_ids uuid[] NOT NULL,
-        quantities integer[] NOT NULL,
-        created_at date NOT NULL DEFAULT CURRENT_TIMESTAMP
+      id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+      user_id uuid references users (id) ON DELETE
+      SET
+          NULL,
+          books_ids uuid [] NOT NULL,
+          quantities integer [] NOT NULL,
+          made_at date NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
   `);
 
